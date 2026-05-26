@@ -56,7 +56,16 @@ export default function AdminAttendanceTable({
     );
   }
 
+  const PAGE_SIZE_OPTIONS = [50, 100, 150] as const;
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(grouped.length / pageSize);
+  const paged = grouped.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
@@ -68,31 +77,50 @@ export default function AdminAttendanceTable({
   };
 
   const expandAll = () =>
-    setExpanded(new Set(grouped.map((e) => e.maNhanVien)));
+    setExpanded(new Set(paged.map((e) => e.maNhanVien)));
 
   const collapseAll = () => setExpanded(new Set());
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={expandAll}
-          className="text-sm text-blue-600 hover:text-blue-800"
-        >
-          Mở tất cả
-        </button>
-        <span className="text-gray-300">|</span>
-        <button
-          type="button"
-          onClick={collapseAll}
-          className="text-sm text-blue-600 hover:text-blue-800"
-        >
-          Đóng tất cả
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={expandAll}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            Mở tất cả
+          </button>
+          <span className="text-gray-300">|</span>
+          <button
+            type="button"
+            onClick={collapseAll}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            Đóng tất cả
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <span>Hiển thị</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            {PAGE_SIZE_OPTIONS.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          <span>/ {grouped.length} nhân viên</span>
+        </div>
       </div>
 
-      {grouped.map((emp) => {
+      {paged.map((emp) => {
         const isOpen = expanded.has(emp.maNhanVien);
 
         return (
@@ -199,6 +227,43 @@ export default function AdminAttendanceTable({
           </div>
         );
       })}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-2">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Trước
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => setCurrentPage(page)}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                page === currentPage
+                  ? "bg-blue-600 text-white"
+                  : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Sau
+          </button>
+        </div>
+      )}
     </div>
   );
 }
