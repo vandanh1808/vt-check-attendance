@@ -78,3 +78,32 @@ export interface AttendanceSummaryData {
   earlyLeaveCount: number;
   missingCheckOut: number;
 }
+
+export type BulkRowStatus =
+  | "ready"
+  | "duplicate"
+  | "not_found"
+  | "missing_email";
+
+export interface BulkAccountRow {
+  id: string;
+  maNhanVien: string;
+  tenNhanVien: string;
+  email: string;
+  status: BulkRowStatus;
+}
+
+export interface BulkCreateEvent {
+  maNhanVien: string;
+  success: boolean;
+  stage: "email_sent" | "email_failed" | "skipped";
+  error?: string;
+}
+
+export interface BulkCreateSummary {
+  done: true;
+  total: number;
+  created: number;
+  emailFailed: number;
+  skipped: number;
+}

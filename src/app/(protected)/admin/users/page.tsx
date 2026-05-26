@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import PageHeader from "@/components/layout/PageHeader";
 import UserTable from "@/components/admin/UserTable";
 import UserFormModal from "@/components/admin/UserFormModal";
+import BulkCreateModal from "@/components/admin/BulkCreateModal";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import type { AppUser } from "@/types";
@@ -13,6 +14,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AppUser | null>(null);
 
   const fetchUsers = useCallback(async () => {
@@ -38,6 +40,10 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
+    if (sessionStorage.getItem("bulk_modal_open")) {
+      sessionStorage.removeItem("bulk_modal_open");
+      setBulkModalOpen(true);
+    }
   }, [fetchUsers]);
 
   function handleEdit(user: AppUser) {
@@ -79,7 +85,12 @@ export default function AdminUsersPage() {
         title="Quản lý tài khoản"
         description="Tạo và quản lý tài khoản đăng nhập cho nhân viên"
         actions={
-          <Button onClick={handleCreateNew}>+ Tạo tài khoản</Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setBulkModalOpen(true)}>
+              Tạo nhiều tài khoản
+            </Button>
+            <Button onClick={handleCreateNew}>+ Tạo tài khoản</Button>
+          </div>
         }
       />
 
@@ -104,6 +115,12 @@ export default function AdminUsersPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={fetchUsers}
         editingUser={editingUser}
+      />
+
+      <BulkCreateModal
+        open={bulkModalOpen}
+        onClose={() => setBulkModalOpen(false)}
+        onSuccess={fetchUsers}
       />
     </div>
   );

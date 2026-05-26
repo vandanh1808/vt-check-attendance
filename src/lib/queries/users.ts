@@ -135,6 +135,34 @@ export async function updateUser(
   );
 }
 
+export async function findRegisteredCodes(
+  codes: string[],
+): Promise<string[]> {
+  if (codes.length === 0) return [];
+
+  const pool = getAppPool();
+  const result = await pool.query(
+    "SELECT ma_nhan_vien FROM app_users WHERE ma_nhan_vien = ANY($1)",
+    [codes],
+  );
+  return result.rows.map(
+    (row: { ma_nhan_vien: string }) => row.ma_nhan_vien,
+  );
+}
+
+export async function verifyPassword(
+  userId: number,
+  password: string,
+): Promise<boolean> {
+  const pool = getAppPool();
+  const result = await pool.query(
+    "SELECT password FROM app_users WHERE id = $1",
+    [userId],
+  );
+  if (result.rows.length === 0) return false;
+  return bcrypt.compare(password, result.rows[0].password);
+}
+
 export async function deleteUser(id: number): Promise<void> {
   const user = await findUserById(id);
   if (!user) throw new Error("Không tìm thấy tài khoản");

@@ -53,3 +53,34 @@ export async function findEmployeeByCode(
 
   return result.recordset[0] ?? null;
 }
+
+export async function findEmployeesByCodes(
+  codes: string[],
+): Promise<NhanVien[]> {
+  if (codes.length === 0) return [];
+
+  const pool = await getAttendancePool();
+  const request = pool.request();
+
+  const conditions = codes.map((code, i) => {
+    const param = `code${i}`;
+    request.input(param, code);
+    return `@${param}`;
+  });
+
+  const query = `
+    SELECT
+      nv.MaNhanVien   AS maNhanVien,
+      nv.TenNhanVien  AS tenNhanVien,
+      nv.MaChamCong   AS maChamCong,
+      nv.MaPhongBan   AS maPhongBan,
+      pb.TenPhongBan  AS tenPhongBan,
+      nv.ChucVu       AS chucVu
+    FROM NHANVIEN nv
+    LEFT JOIN PHONGBAN pb ON nv.MaPhongBan = pb.MaPhongBan
+    WHERE nv.MaNhanVien IN (${conditions.join(", ")})
+  `;
+
+  const result = await request.query<NhanVien>(query);
+  return result.recordset;
+}

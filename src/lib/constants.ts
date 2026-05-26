@@ -8,6 +8,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   ADMIN_ATTENDANCE: "/admin/attendance",
   ADMIN_USERS: "/admin/users",
+  PROFILE: "/profile",
 } as const;
 
 export const PROTECTED_ROUTES = ["/dashboard", "/admin"] as const;
