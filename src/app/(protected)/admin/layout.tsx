@@ -3,13 +3,16 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ROLES, ROUTES } from "@/lib/constants";
 
-export default async function HomePage() {
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await getServerSession(authOptions);
 
-  if (session) {
-    const isAdmin = session.user?.role === ROLES.ADMIN;
-    redirect(isAdmin ? ROUTES.ADMIN_ATTENDANCE : ROUTES.DASHBOARD);
+  if (!session || session.user.role !== ROLES.ADMIN) {
+    redirect(ROUTES.DASHBOARD);
   }
 
-  redirect(ROUTES.LOGIN);
+  return <>{children}</>;
 }
