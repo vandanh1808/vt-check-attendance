@@ -6,7 +6,7 @@ import DateRangeFilter from "@/components/attendance/DateRangeFilter";
 import AttendanceTable from "@/components/attendance/AttendanceTable";
 import AttendanceSummary from "@/components/attendance/AttendanceSummary";
 import Spinner from "@/components/ui/Spinner";
-import { getFirstDayOfMonth, getToday } from "@/lib/helpers/date";
+import { getDefaultDateRange } from "@/lib/helpers/date";
 import type { AttendanceRecord } from "@/types";
 
 export default function DashboardPage() {
@@ -14,8 +14,8 @@ export default function DashboardPage() {
   const [holidayDates, setHolidayDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [fromDate, setFromDate] = useState(getFirstDayOfMonth);
-  const [toDate, setToDate] = useState(getToday);
+  const [fromDate, setFromDate] = useState(() => getDefaultDateRange().fromDate);
+  const [toDate, setToDate] = useState(() => getDefaultDateRange().toDate);
   const hasFetched = useRef(false);
 
   const fetchData = useCallback(async () => {

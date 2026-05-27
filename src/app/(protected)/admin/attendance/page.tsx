@@ -6,7 +6,7 @@ import DateRangeFilter from "@/components/attendance/DateRangeFilter";
 import EmployeeFilter, { type AutocompleteOption } from "@/components/attendance/EmployeeFilter";
 import AdminAttendanceTable from "@/components/attendance/AdminAttendanceTable";
 import Spinner from "@/components/ui/Spinner";
-import { getFirstDayOfMonth, getToday } from "@/lib/helpers/date";
+import { getDefaultDateRange } from "@/lib/helpers/date";
 import type { EmployeeAttendanceRecord } from "@/types";
 
 export default function AdminAttendancePage() {
@@ -14,8 +14,8 @@ export default function AdminAttendancePage() {
   const [holidayDates, setHolidayDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [fromDate, setFromDate] = useState(getFirstDayOfMonth);
-  const [toDate, setToDate] = useState(getToday);
+  const [fromDate, setFromDate] = useState(() => getDefaultDateRange().fromDate);
+  const [toDate, setToDate] = useState(() => getDefaultDateRange().toDate);
   const [selectedEmployees, setSelectedEmployees] = useState<AutocompleteOption[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const hasFetched = useRef(false);

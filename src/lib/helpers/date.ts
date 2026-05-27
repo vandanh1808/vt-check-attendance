@@ -52,3 +52,20 @@ export function computeWorkHours(
 export function isValidDateString(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !isNaN(Date.parse(value));
 }
+
+export function getDefaultDateRange(): { fromDate: string; toDate: string } {
+  const now = new Date();
+  const day = now.getDate();
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  if (day <= 20) {
+    return {
+      fromDate: fmt(new Date(now.getFullYear(), now.getMonth() - 1, 21)),
+      toDate: fmt(new Date(now.getFullYear(), now.getMonth(), 20)),
+    };
+  }
+  return {
+    fromDate: fmt(new Date(now.getFullYear(), now.getMonth(), 21)),
+    toDate: fmt(now),
+  };
+}
