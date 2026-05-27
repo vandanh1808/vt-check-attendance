@@ -11,6 +11,7 @@ import type { EmployeeAttendanceRecord } from "@/types";
 
 export default function AdminAttendancePage() {
   const [data, setData] = useState<EmployeeAttendanceRecord[]>([]);
+  const [holidayDates, setHolidayDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fromDate, setFromDate] = useState(getFirstDayOfMonth);
@@ -31,16 +32,21 @@ export default function AdminAttendancePage() {
     if (selectedDepartment) query.set("maPhongBan", selectedDepartment);
 
     try {
-      const res = await fetch(`/api/attendance?${query}`);
-      const json = await res.json();
+      const [attRes, holRes] = await Promise.all([
+        fetch(`/api/attendance?${query}`),
+        fetch(`/api/holidays?fromDate=${fromDate}&toDate=${toDate}`),
+      ]);
+      const attJson = await attRes.json();
+      const holJson = await holRes.json();
 
-      if (!res.ok) {
-        setError(json.error ?? "Lỗi khi tải dữ liệu");
+      if (!attRes.ok) {
+        setError(attJson.error ?? "Lỗi khi tải dữ liệu");
         setData([]);
         return;
       }
 
-      setData(json.data);
+      setData(attJson.data);
+      setHolidayDates(holRes.ok ? holJson.data : []);
     } catch {
       setError("Không thể kết nối server");
       setData([]);
@@ -91,7 +97,7 @@ export default function AdminAttendancePage() {
           <p className="text-sm text-gray-500">
             Tổng: <strong>{data.length}</strong> bản ghi
           </p>
-          <AdminAttendanceTable data={data} fromDate={fromDate} toDate={toDate} />
+          <AdminAttendanceTable data={data} fromDate={fromDate} toDate={toDate} holidayDates={holidayDates} />
         </>
       ) : null}
     </div>

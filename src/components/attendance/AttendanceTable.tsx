@@ -10,10 +10,11 @@ interface AttendanceTableProps {
   data: AttendanceRecord[];
   fromDate: string;
   toDate: string;
+  holidayDates?: string[];
 }
 
 function toLocalDateStr(d: Date): string {
-  return `${d.getFullYear()}-${d.getMonth() + 1 < 10 ? "0" : ""}${d.getMonth() + 1}-${d.getDate() < 10 ? "0" : ""}${d.getDate()}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function fillMissingDates(
@@ -42,52 +43,68 @@ function fillMissingDates(
   return filled.sort((a, b) => a.attendanceDate.localeCompare(b.attendanceDate));
 }
 
-const columns: Column<AttendanceRecord>[] = [
-  {
-    key: "date",
-    header: "Ngày",
-    render: (row) => (
-      <span className={`font-medium ${!row.checkIn ? "text-gray-400" : ""}`}>
-        {formatDate(row.attendanceDate)}
-      </span>
-    ),
-  },
-  {
-    key: "checkIn",
-    header: "Giờ vào",
-    render: (row) =>
-      row.checkIn ? (
-        <span className="text-green-700">{formatTime(row.checkIn)}</span>
-      ) : (
-        <Badge variant="danger">Nghỉ</Badge>
+function buildColumns(holidaySet: Set<string>): Column<AttendanceRecord>[] {
+  return [
+    {
+      key: "date",
+      header: "Ngày",
+      render: (row) => {
+        const holiday = holidaySet.has(row.attendanceDate);
+        return (
+          <span className={`font-medium ${!row.checkIn ? (holiday ? "text-blue-400" : "text-gray-400") : ""}`}>
+            {formatDate(row.attendanceDate)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "checkIn",
+      header: "Giờ vào",
+      render: (row) => {
+        if (row.checkIn) {
+          return <span className="text-green-700">{formatTime(row.checkIn)}</span>;
+        }
+        return holidaySet.has(row.attendanceDate)
+          ? <Badge variant="info">Nghỉ lễ</Badge>
+          : <Badge variant="danger">Nghỉ</Badge>;
+      },
+    },
+    {
+      key: "checkOut",
+      header: "Giờ ra",
+      render: (row) =>
+        !row.checkIn ? (
+          <span className="text-gray-300">--</span>
+        ) : row.checkOut ? (
+          <span className="text-blue-700">{formatTime(row.checkOut)}</span>
+        ) : (
+          <Badge variant="warning">Thiếu</Badge>
+        ),
+    },
+    {
+      key: "device",
+      header: "Thiết bị",
+      render: (row) => (
+        <span className="text-gray-500">{!row.checkIn ? "--" : row.tenMay ?? "--"}</span>
       ),
-  },
-  {
-    key: "checkOut",
-    header: "Giờ ra",
-    render: (row) =>
-      !row.checkIn ? (
-        <span className="text-gray-300">--</span>
-      ) : row.checkOut ? (
-        <span className="text-blue-700">{formatTime(row.checkOut)}</span>
-      ) : (
-        <Badge variant="warning">Thiếu</Badge>
-      ),
-  },
-  {
-    key: "device",
-    header: "Thiết bị",
-    render: (row) => (
-      <span className="text-gray-500">{!row.checkIn ? "--" : row.tenMay ?? "--"}</span>
-    ),
-  },
-];
+    },
+  ];
+}
 
-export default function AttendanceTable({ data, fromDate, toDate }: AttendanceTableProps) {
+export default function AttendanceTable({
+  data,
+  fromDate,
+  toDate,
+  holidayDates = [],
+}: AttendanceTableProps) {
+  const holidaySet = useMemo(() => new Set(holidayDates), [holidayDates]);
+
   const filledData = useMemo(
     () => fillMissingDates(data, fromDate, toDate),
     [data, fromDate, toDate],
   );
+
+  const columns = useMemo(() => buildColumns(holidaySet), [holidaySet]);
 
   return (
     <Table

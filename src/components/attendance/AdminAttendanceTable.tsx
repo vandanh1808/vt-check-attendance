@@ -9,6 +9,7 @@ interface AdminAttendanceTableProps {
   data: EmployeeAttendanceRecord[];
   fromDate: string;
   toDate: string;
+  holidayDates?: string[];
 }
 
 interface GroupedEmployee {
@@ -85,7 +86,7 @@ function generateDateRange(from: string, to: string, hideWeekends: boolean): str
   return dates;
 }
 
-function countWeekdays(from: string, to: string): number {
+function countWorkdays(from: string, to: string, holidaySet: Set<string>): number {
   const [fy, fm, fd] = from.split("-").map(Number);
   const [ty, tm, td] = to.split("-").map(Number);
   const current = new Date(fy, fm - 1, fd);
@@ -93,7 +94,8 @@ function countWeekdays(from: string, to: string): number {
   let count = 0;
   while (current <= end) {
     const day = current.getDay();
-    if (day !== 0 && day !== 6) count++;
+    const str = toLocalDateStr(current);
+    if (day !== 0 && day !== 6 && !holidaySet.has(str)) count++;
     current.setDate(current.getDate() + 1);
   }
   return count;
@@ -341,6 +343,7 @@ export default function AdminAttendanceTable({
   data,
   fromDate,
   toDate,
+  holidayDates = [],
 }: AdminAttendanceTableProps) {
   const [options, setOptions] = useState<DisplayOptions>(DEFAULT_OPTIONS);
   const [hydrated, setHydrated] = useState(false);
@@ -355,9 +358,11 @@ export default function AdminAttendanceTable({
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   }, []);
 
-  const totalWeekdays = useMemo(
-    () => countWeekdays(fromDate, toDate),
-    [fromDate, toDate],
+  const holidaySet = useMemo(() => new Set(holidayDates), [holidayDates]);
+
+  const totalWorkdays = useMemo(
+    () => countWorkdays(fromDate, toDate, holidaySet),
+    [fromDate, toDate, holidaySet],
   );
 
   const allDates = useMemo(
@@ -366,8 +371,8 @@ export default function AdminAttendanceTable({
   );
 
   const grouped = useMemo(
-    () => groupByEmployee(data, allDates, options.showAbsentDays, totalWeekdays),
-    [data, allDates, options.showAbsentDays, totalWeekdays],
+    () => groupByEmployee(data, allDates, options.showAbsentDays, totalWorkdays),
+    [data, allDates, options.showAbsentDays, totalWorkdays],
   );
 
   const sorted = useMemo(
@@ -451,7 +456,7 @@ export default function AdminAttendanceTable({
             )}
             <AttendanceRateBadge rate={emp.attendanceRate} />
             <span className="text-xs text-slate-400">
-              {emp.presentDays}/{totalWeekdays}
+              {emp.presentDays}/{totalWorkdays}
             </span>
           </div>
         </button>
@@ -462,18 +467,19 @@ export default function AdminAttendanceTable({
             <div className="divide-y divide-slate-100 sm:hidden">
               {emp.records.map((row) => {
                 const absent = !row.checkIn;
+                const holiday = holidaySet.has(row.attendanceDate);
+                const weekend = isWeekend(row.attendanceDate);
                 const late = options.highlightLate && isLate(row.checkIn, options.lateThreshold);
+                const rowBg = holiday ? "bg-blue-50/50" : absent ? "bg-red-50/50" : late ? "bg-amber-50/50" : "";
                 return (
                   <div
                     key={row.attendanceDate}
-                    className={`flex items-center justify-between px-3 py-2.5 text-sm ${absent ? "bg-red-50/50" : late ? "bg-amber-50/50" : ""}`}
+                    className={`flex items-center justify-between px-3 py-2.5 text-sm ${rowBg}`}
                   >
                     <div>
-                      <p className={`font-medium ${absent ? "text-slate-400" : ""}`}>
+                      <p className={`font-medium ${absent && !holiday ? "text-slate-400" : holiday ? "text-blue-400" : ""}`}>
                         {formatDate(row.attendanceDate)}
-                        {isWeekend(row.attendanceDate) && (
-                          <span className="ml-1.5 text-[10px] text-slate-400">(cuối tuần)</span>
-                        )}
+                        {weekend && <span className="ml-1.5 text-[10px] text-slate-400">(cuối tuần)</span>}
                       </p>
                       {!absent && (
                         <p className="mt-0.5 text-xs text-slate-500">{row.tenMay ?? "--"}</p>
@@ -481,7 +487,7 @@ export default function AdminAttendanceTable({
                     </div>
                     <div className="text-right">
                       {absent ? (
-                        <Badge variant="danger">Nghỉ</Badge>
+                        holiday ? <Badge variant="info">Nghỉ lễ</Badge> : <Badge variant="danger">Nghỉ</Badge>
                       ) : (
                         <>
                           <span className={late ? "font-medium text-amber-700" : "text-green-700"}>
@@ -514,21 +520,22 @@ export default function AdminAttendanceTable({
               <tbody className="divide-y divide-slate-100">
                 {emp.records.map((row) => {
                   const absent = !row.checkIn;
+                  const holiday = holidaySet.has(row.attendanceDate);
+                  const weekend = isWeekend(row.attendanceDate);
                   const late = options.highlightLate && isLate(row.checkIn, options.lateThreshold);
+                  const rowBg = holiday ? "bg-blue-50/40" : absent ? "bg-red-50/40" : late ? "bg-amber-50/40" : "hover:bg-slate-50";
                   return (
                     <tr
                       key={row.attendanceDate}
-                      className={`transition-colors ${absent ? "bg-red-50/40" : late ? "bg-amber-50/40" : "hover:bg-slate-50"}`}
+                      className={`transition-colors ${rowBg}`}
                     >
-                      <td className={`px-4 py-3 font-medium ${absent ? "text-slate-400" : ""}`}>
+                      <td className={`px-4 py-3 font-medium ${absent && !holiday ? "text-slate-400" : holiday ? "text-blue-400" : ""}`}>
                         {formatDate(row.attendanceDate)}
-                        {isWeekend(row.attendanceDate) && (
-                          <span className="ml-1.5 text-[10px] text-slate-400">(cuối tuần)</span>
-                        )}
+                        {weekend && <span className="ml-1.5 text-[10px] text-slate-400">(cuối tuần)</span>}
                       </td>
                       <td className="px-4 py-3">
                         {absent ? (
-                          <Badge variant="danger">Nghỉ</Badge>
+                          holiday ? <Badge variant="info">Nghỉ lễ</Badge> : <Badge variant="danger">Nghỉ</Badge>
                         ) : (
                           <span className={late ? "font-medium text-amber-700" : "text-green-700"}>
                             {formatTime(row.checkIn)}
@@ -611,7 +618,7 @@ export default function AdminAttendanceTable({
           </select>
           <span>/ {sorted.length} nhân viên</span>
           <span className="text-slate-300">·</span>
-          <span>{totalWeekdays} ngày làm việc</span>
+          <span>{totalWorkdays} ngày làm việc</span>
         </div>
       </div>
 

@@ -1,34 +1,54 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import PageHeader from "@/components/layout/PageHeader";
 import DateRangeFilter from "@/components/attendance/DateRangeFilter";
 import AttendanceTable from "@/components/attendance/AttendanceTable";
 import AttendanceSummary from "@/components/attendance/AttendanceSummary";
 import Spinner from "@/components/ui/Spinner";
-import { useAttendance } from "@/hooks/useAttendance";
+import { getFirstDayOfMonth, getToday } from "@/lib/helpers/date";
+import type { AttendanceRecord } from "@/types";
 
 export default function DashboardPage() {
-  const {
-    data,
-    loading,
-    error,
-    fromDate,
-    toDate,
-    setFromDate,
-    setToDate,
-    fetchAttendance,
-  } = useAttendance();
-
+  const [data, setData] = useState<AttendanceRecord[]>([]);
+  const [holidayDates, setHolidayDates] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [fromDate, setFromDate] = useState(getFirstDayOfMonth);
+  const [toDate, setToDate] = useState(getToday);
   const hasFetched = useRef(false);
 
-  const handleApply = () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError("");
     hasFetched.current = true;
-    fetchAttendance();
-  };
+
+    try {
+      const [attRes, holRes] = await Promise.all([
+        fetch(`/api/attendance?fromDate=${fromDate}&toDate=${toDate}`),
+        fetch(`/api/holidays?fromDate=${fromDate}&toDate=${toDate}`),
+      ]);
+      const attJson = await attRes.json();
+      const holJson = await holRes.json();
+
+      if (!attRes.ok) {
+        setError(attJson.error ?? "Lỗi khi tải dữ liệu");
+        setData([]);
+        return;
+      }
+
+      setData(attJson.data);
+      setHolidayDates(holRes.ok ? holJson.data : []);
+    } catch {
+      setError("Không thể kết nối server");
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [fromDate, toDate]);
 
   useEffect(() => {
-    handleApply();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -45,7 +65,7 @@ export default function DashboardPage() {
           toDate={toDate}
           onFromDateChange={setFromDate}
           onToDateChange={setToDate}
-          onApply={handleApply}
+          onApply={fetchData}
           loading={loading}
         />
       </div>
@@ -60,8 +80,8 @@ export default function DashboardPage() {
         <Spinner className="py-12" />
       ) : hasFetched.current ? (
         <>
-          <AttendanceSummary data={data} fromDate={fromDate} toDate={toDate} />
-          <AttendanceTable data={data} fromDate={fromDate} toDate={toDate} />
+          <AttendanceSummary data={data} fromDate={fromDate} toDate={toDate} holidayDates={holidayDates} />
+          <AttendanceTable data={data} fromDate={fromDate} toDate={toDate} holidayDates={holidayDates} />
         </>
       ) : null}
     </div>

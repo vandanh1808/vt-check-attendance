@@ -7,6 +7,7 @@ interface AttendanceSummaryProps {
   data: AttendanceRecord[];
   fromDate: string;
   toDate: string;
+  holidayDates?: string[];
 }
 
 interface StatCardProps {
@@ -29,17 +30,32 @@ function parseTimeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-function countDaysInRange(from: string, to: string): number {
-  const start = new Date(from + "T00:00:00");
-  const end = new Date(to + "T00:00:00");
-  return Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+function countWorkdays(from: string, to: string, holidaySet: Set<string>): number {
+  const [fy, fm, fd] = from.split("-").map(Number);
+  const [ty, tm, td] = to.split("-").map(Number);
+  const current = new Date(fy, fm - 1, fd);
+  const end = new Date(ty, tm - 1, td);
+  let count = 0;
+  while (current <= end) {
+    const day = current.getDay();
+    const str = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, "0")}-${String(current.getDate()).padStart(2, "0")}`;
+    if (day !== 0 && day !== 6 && !holidaySet.has(str)) count++;
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
 }
 
-export default function AttendanceSummary({ data, fromDate, toDate }: AttendanceSummaryProps) {
+export default function AttendanceSummary({
+  data,
+  fromDate,
+  toDate,
+  holidayDates = [],
+}: AttendanceSummaryProps) {
   const stats = useMemo(() => {
+    const holidaySet = new Set(holidayDates);
     const presentDays = data.filter((r) => r.checkIn).length;
-    const totalDaysInRange = countDaysInRange(fromDate, toDate);
-    const absentDays = totalDaysInRange - presentDays;
+    const totalWorkdays = countWorkdays(fromDate, toDate, holidaySet);
+    const absentDays = Math.max(0, totalWorkdays - presentDays);
     const missingCheckOut = data.filter((r) => r.checkIn && !r.checkOut).length;
 
     let totalMinutes = 0;
@@ -56,18 +72,19 @@ export default function AttendanceSummary({ data, fromDate, toDate }: Attendance
 
     return {
       presentDays,
-      totalDaysInRange,
+      totalWorkdays,
       absentDays,
+      holidayCount: holidayDates.length,
       totalHours: `${hours}h${mins.toString().padStart(2, "0")}m`,
       missingCheckOut,
     };
-  }, [data, fromDate, toDate]);
+  }, [data, fromDate, toDate, holidayDates]);
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
       <StatCard
         label="Ngày có mặt"
-        value={`${stats.presentDays}/${stats.totalDaysInRange}`}
+        value={`${stats.presentDays}/${stats.totalWorkdays}`}
         color="text-gray-900"
       />
       <StatCard

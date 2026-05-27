@@ -13,12 +13,23 @@ const CREATE_APP_USERS_TABLE = `
   )
 `;
 
+const CREATE_HOLIDAYS_TABLE = `
+  CREATE TABLE IF NOT EXISTS holidays (
+    id          SERIAL PRIMARY KEY,
+    date        DATE NOT NULL,
+    name        VARCHAR(200) NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE(date)
+  )
+`;
+
 const SALT_ROUNDS = 10;
 
 export async function seedDatabase(): Promise<{ message: string }> {
   const pool = getAppPool();
 
   await pool.query(CREATE_APP_USERS_TABLE);
+  await pool.query(CREATE_HOLIDAYS_TABLE);
 
   const result = await pool.query(
     "SELECT COUNT(*) AS count FROM app_users WHERE role = 'admin'",

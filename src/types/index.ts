@@ -79,6 +79,12 @@ export interface AttendanceSummaryData {
   missingCheckOut: number;
 }
 
+export interface Holiday {
+  id: number;
+  date: string;
+  name: string;
+}
+
 export type BulkRowStatus =
   | "ready"
   | "duplicate"
