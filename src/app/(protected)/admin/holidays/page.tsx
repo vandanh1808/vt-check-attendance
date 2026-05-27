@@ -88,12 +88,17 @@ export default function AdminHolidaysPage() {
     }
 
     try {
+      let failCount = 0;
       for (const h of toAdd) {
-        await fetch("/api/admin/holidays", {
+        const res = await fetch("/api/admin/holidays", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(h),
         });
+        if (!res.ok) failCount++;
+      }
+      if (failCount > 0) {
+        setError(`Không thể thêm ${failCount} ngày lễ`);
       }
       fetchHolidays();
     } catch {
@@ -123,16 +128,18 @@ export default function AdminHolidaysPage() {
             type="button"
             onClick={() => setYear((y) => y - 1)}
             className="rounded-lg border border-slate-200 px-2.5 py-1 text-sm text-slate-600 hover:bg-slate-50"
+            aria-label="Năm trước"
           >
             &larr;
           </button>
-          <span className="min-w-[4rem] text-center text-sm font-semibold text-slate-900">
+          <span className="min-w-16 text-center text-sm font-semibold text-slate-900">
             {year}
           </span>
           <button
             type="button"
             onClick={() => setYear((y) => y + 1)}
             className="rounded-lg border border-slate-200 px-2.5 py-1 text-sm text-slate-600 hover:bg-slate-50"
+            aria-label="Năm sau"
           >
             &rarr;
           </button>

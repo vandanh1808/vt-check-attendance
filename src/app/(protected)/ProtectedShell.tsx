@@ -31,8 +31,10 @@ export default function ProtectedShell({
           userRole={userRole}
           mobileMenuButton={
             <button
+              type="button"
               onClick={() => setMobileOpen(true)}
               className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
+              aria-label="Mở menu"
             >
               {MenuIcon}
             </button>

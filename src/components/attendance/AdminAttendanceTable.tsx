@@ -37,6 +37,8 @@ const LATE_MIN = "06:00";
 const LATE_MAX = "10:00";
 const STORAGE_KEY = "admin_attendance_display_options";
 
+const PAGE_SIZE_OPTIONS = [50, 100, 150] as const;
+
 const DEFAULT_OPTIONS: DisplayOptions = {
   showAbsentDays: true,
   hideWeekends: false,
@@ -183,11 +185,12 @@ function ToggleSwitch({
   label: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5">
+    <div className="flex cursor-pointer items-center gap-2.5">
       <button
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-label={label}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-indigo-600" : "bg-slate-200"}`}
       >
@@ -196,7 +199,7 @@ function ToggleSwitch({
         />
       </button>
       <span className="text-sm text-slate-700">{label}</span>
-    </label>
+    </div>
   );
 }
 
@@ -346,11 +349,9 @@ export default function AdminAttendanceTable({
   holidayDates = [],
 }: AdminAttendanceTableProps) {
   const [options, setOptions] = useState<DisplayOptions>(DEFAULT_OPTIONS);
-  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setOptions(loadOptions());
-    setHydrated(true);
   }, []);
 
   const updateOptions = useCallback((next: DisplayOptions) => {
@@ -380,10 +381,13 @@ export default function AdminAttendanceTable({
     [grouped, options.sortBy],
   );
 
-  const PAGE_SIZE_OPTIONS = [50, 100, 150] as const;
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
 
   const totalPages = Math.ceil(sorted.length / pageSize);
   const paged = sorted.slice(

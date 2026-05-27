@@ -14,7 +14,6 @@ export async function GET() {
   if (session.user.role !== ROLES.ADMIN) return forbiddenResponse();
 
   const token = await getOAuthToken();
-  console.log("[OAuth status] token:", token ? `email=${token.email}` : "null");
 
   if (!token) {
     return successResponse({ authenticated: false });

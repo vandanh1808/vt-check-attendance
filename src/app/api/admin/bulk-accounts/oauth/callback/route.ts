@@ -21,7 +21,6 @@ export async function GET(request: Request) {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
   if (error) {
-    console.error("[OAuth callback] Error:", errorDescription ?? error);
     return redirectTo(baseUrl, errorDescription ?? error);
   }
 
@@ -33,7 +32,6 @@ export async function GET(request: Request) {
   const savedState = store.get("oauth_state")?.value;
   store.delete("oauth_state");
 
-  console.log("[OAuth callback] state match:", state === savedState, "saved:", !!savedState);
   if (state !== savedState) {
     return redirectTo(baseUrl, "OAuth state không hợp lệ");
   }
@@ -59,8 +57,6 @@ export async function GET(request: Request) {
   );
 
   if (!tokenRes.ok) {
-    const errBody = await tokenRes.text();
-    console.error("[OAuth callback] Token exchange failed:", errBody);
     return redirectTo(baseUrl, "Không thể lấy token từ Microsoft");
   }
 
@@ -87,7 +83,6 @@ export async function GET(request: Request) {
     expiresAt: Math.floor(Date.now() / 1000) + tokenData.expires_in,
   });
 
-  console.log("[OAuth callback] SUCCESS - email:", email, "chunks:", chunks.length);
   const response = NextResponse.redirect(new URL("/admin/users", baseUrl));
   for (const chunk of chunks) {
     response.cookies.set(chunk.name, chunk.value, options);

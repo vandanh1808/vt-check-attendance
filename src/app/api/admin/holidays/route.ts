@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const year = searchParams.get("year");
 
-    const holidays = await getHolidays(year ? parseInt(year) : undefined);
+    const holidays = await getHolidays(year ? parseInt(year, 10) : undefined);
     return successResponse(holidays);
   } catch (error) {
     return serverErrorResponse(error);

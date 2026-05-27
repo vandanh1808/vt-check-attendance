@@ -72,7 +72,7 @@ export async function updateHoliday(
     "UPDATE holidays SET date = $1, name = $2 WHERE id = $3",
     [date, name, id],
   );
-  if (result.rowCount === 0) {
+  if (!result.rowCount) {
     throw new Error("Không tìm thấy ngày lễ");
   }
 }
@@ -80,7 +80,7 @@ export async function updateHoliday(
 export async function deleteHoliday(id: number): Promise<void> {
   const pool = getAppPool();
   const result = await pool.query("DELETE FROM holidays WHERE id = $1", [id]);
-  if (result.rowCount === 0) {
+  if (!result.rowCount) {
     throw new Error("Không tìm thấy ngày lễ");
   }
 }

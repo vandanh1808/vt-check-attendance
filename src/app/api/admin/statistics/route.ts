@@ -59,6 +59,17 @@ export async function GET(request: Request) {
     const overtimeAfter = searchParams.get("overtimeAfter") ?? "17:00";
     const earlyBefore = searchParams.get("earlyBefore") ?? "17:00";
 
+    const timeRegex = /^\d{2}:\d{2}$/;
+    if (!timeRegex.test(lateThreshold)) {
+      return errorResponse("Định dạng giờ trễ không hợp lệ (HH:mm)");
+    }
+    if (!timeRegex.test(overtimeAfter)) {
+      return errorResponse("Định dạng giờ tăng ca không hợp lệ (HH:mm)");
+    }
+    if (!timeRegex.test(earlyBefore)) {
+      return errorResponse("Định dạng giờ về sớm không hợp lệ (HH:mm)");
+    }
+
     const holidays = await getHolidayDates(fromDate, toDate);
     const workdays = countWorkdays(fromDate, toDate, holidays);
 

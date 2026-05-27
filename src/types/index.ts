@@ -36,17 +36,6 @@ export interface Department {
   tenPhongBan: string;
 }
 
-export interface AttendanceFilter {
-  fromDate: string;
-  toDate: string;
-}
-
-export interface AdminAttendanceFilter extends AttendanceFilter {
-  maNhanVien?: string;
-  maPhongBan?: string;
-  searchTerm?: string;
-}
-
 export interface CreateUserPayload {
   maNhanVien: string;
   tenNhanVien: string;
@@ -60,23 +49,6 @@ export interface UpdateUserPayload {
   email?: string;
   password?: string;
   role?: UserRole;
-}
-
-export interface ApiResponse<T> {
-  data: T;
-}
-
-export interface ApiError {
-  error: string;
-}
-
-export interface AttendanceSummaryData {
-  totalDays: number;
-  totalWorkDays: number;
-  totalHours: number;
-  lateCount: number;
-  earlyLeaveCount: number;
-  missingCheckOut: number;
 }
 
 export interface Holiday {

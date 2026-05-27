@@ -21,7 +21,7 @@ export async function PUT(
     if (session.user.role !== ROLES.ADMIN) return forbiddenResponse();
 
     const { id: idStr } = await params;
-    const id = parseInt(idStr);
+    const id = parseInt(idStr, 10);
     if (isNaN(id)) return errorResponse("ID không hợp lệ");
 
     const body = (await request.json()) as { date?: string; name?: string };
@@ -54,7 +54,7 @@ export async function DELETE(
     if (session.user.role !== ROLES.ADMIN) return forbiddenResponse();
 
     const { id: idStr } = await params;
-    const id = parseInt(idStr);
+    const id = parseInt(idStr, 10);
     if (isNaN(id)) return errorResponse("ID không hợp lệ");
 
     await deleteHoliday(id);

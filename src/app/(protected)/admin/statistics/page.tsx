@@ -107,12 +107,14 @@ function StatCard({
   value,
   sub,
   color,
+  iconBg,
   icon,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   color: string;
+  iconBg: string;
   icon: React.ReactNode;
 }) {
   return (
@@ -123,7 +125,7 @@ function StatCard({
           <p className={`mt-1 text-3xl font-bold ${color}`}>{value}</p>
           {sub && <p className="mt-0.5 text-xs text-slate-400">{sub}</p>}
         </div>
-        <div className={`rounded-lg p-2.5 ${color.replace("text-", "bg-").replace("700", "50").replace("600", "50").replace("900", "50")}`}>
+        <div className={`rounded-lg p-2.5 ${iconBg}`}>
           {icon}
         </div>
       </div>
@@ -190,8 +192,9 @@ export default function AdminStatisticsPage() {
 
       <div className="flex flex-wrap items-end gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Từ ngày</label>
+          <label htmlFor="stat-from" className="mb-1 block text-xs font-medium text-slate-500">Từ ngày</label>
           <input
+            id="stat-from"
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
@@ -199,8 +202,9 @@ export default function AdminStatisticsPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Đến ngày</label>
+          <label htmlFor="stat-to" className="mb-1 block text-xs font-medium text-slate-500">Đến ngày</label>
           <input
+            id="stat-to"
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
@@ -208,8 +212,9 @@ export default function AdminStatisticsPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Giờ trễ sau</label>
+          <label htmlFor="stat-late" className="mb-1 block text-xs font-medium text-slate-500">Giờ trễ sau</label>
           <input
+            id="stat-late"
             type="time"
             value={lateThreshold}
             onChange={(e) => { if (e.target.value) setLateThreshold(e.target.value); }}
@@ -217,8 +222,9 @@ export default function AdminStatisticsPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Tăng ca sau</label>
+          <label htmlFor="stat-overtime" className="mb-1 block text-xs font-medium text-slate-500">Tăng ca sau</label>
           <input
+            id="stat-overtime"
             type="time"
             value={overtimeAfter}
             onChange={(e) => { if (e.target.value) setOvertimeAfter(e.target.value); }}
@@ -226,8 +232,9 @@ export default function AdminStatisticsPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-500">Về sớm trước</label>
+          <label htmlFor="stat-early" className="mb-1 block text-xs font-medium text-slate-500">Về sớm trước</label>
           <input
+            id="stat-early"
             type="time"
             value={earlyBefore}
             onChange={(e) => { if (e.target.value) setEarlyBefore(e.target.value); }}
@@ -256,6 +263,7 @@ export default function AdminStatisticsPage() {
               label="Tổng nhân viên"
               value={data.overview.totalEmployees}
               color="text-slate-900"
+              iconBg="bg-slate-50"
               icon={<UsersIcon className="h-5 w-5 text-slate-500" />}
             />
             <StatCard
@@ -263,12 +271,14 @@ export default function AdminStatisticsPage() {
               value={data.overview.checkedIn}
               sub={`${data.overview.notCheckedIn} chưa check-in`}
               color="text-emerald-600"
+              iconBg="bg-emerald-50"
               icon={<CheckIcon className="h-5 w-5 text-emerald-600" />}
             />
             <StatCard
               label="Chưa check-in"
               value={data.overview.notCheckedIn}
               color={data.overview.notCheckedIn > 0 ? "text-red-600" : "text-emerald-600"}
+              iconBg={data.overview.notCheckedIn > 0 ? "bg-red-50" : "bg-emerald-50"}
               icon={<XIcon className="h-5 w-5 text-red-500" />}
             />
             <StatCard
@@ -276,6 +286,7 @@ export default function AdminStatisticsPage() {
               value={data.overview.lateCount}
               sub={`Sau ${lateThreshold}`}
               color={data.overview.lateCount > 0 ? "text-amber-600" : "text-emerald-600"}
+              iconBg={data.overview.lateCount > 0 ? "bg-amber-50" : "bg-emerald-50"}
               icon={<ClockIcon className="h-5 w-5 text-amber-500" />}
             />
           </div>

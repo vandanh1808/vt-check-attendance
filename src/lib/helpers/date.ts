@@ -1,14 +1,3 @@
-export function getFirstDayOfMonth(): string {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0];
-}
-
-export function getToday(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
 const DAY_NAMES = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
 export function formatDate(date: Date | string): string {
@@ -35,18 +24,6 @@ export function formatTime(value: string | null): string {
     second: "2-digit",
     hour12: false,
   });
-}
-
-export function computeWorkHours(
-  checkIn: string | null,
-  checkOut: string | null,
-): string {
-  if (!checkIn || !checkOut) return "--";
-  const diffMs = new Date(checkOut).getTime() - new Date(checkIn).getTime();
-  if (diffMs < 0) return "--";
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  return `${hours}h${minutes.toString().padStart(2, "0")}m`;
 }
 
 export function isValidDateString(value: string): boolean {

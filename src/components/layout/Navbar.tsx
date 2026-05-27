@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { signOut } from "next-auth/react";
 import Badge from "@/components/ui/Badge";
+import { ROUTES } from "@/lib/constants";
 import type { UserRole } from "@/types";
 
 interface NavbarProps {
@@ -36,9 +37,10 @@ export default function Navbar({ userName, userRole, mobileMenuButton }: NavbarP
         <div className="h-5 w-px bg-slate-200" />
 
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          type="button"
+          onClick={() => signOut({ callbackUrl: ROUTES.LOGIN })}
           className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-          title="Đăng xuất"
+          aria-label="Đăng xuất"
         >
           <svg
             className="h-4.5 w-4.5"

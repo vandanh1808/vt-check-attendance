@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { getFirstDayOfMonth, getToday } from "@/lib/helpers/date";
+import { getDefaultDateRange } from "@/lib/helpers/date";
 import type { AttendanceRecord } from "@/types";
 
 interface UseAttendanceOptions {
@@ -20,8 +20,10 @@ export function useAttendance(options?: UseAttendanceOptions) {
   const [data, setData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [fromDate, setFromDate] = useState(getFirstDayOfMonth);
-  const [toDate, setToDate] = useState(getToday);
+  const { fromDate: defaultFromDate, toDate: defaultToDate } =
+    getDefaultDateRange();
+  const [fromDate, setFromDate] = useState(defaultFromDate);
+  const [toDate, setToDate] = useState(defaultToDate);
 
   const fetchAttendance = useCallback(
     async (params?: Partial<FetchParams>) => {

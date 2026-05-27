@@ -100,8 +100,10 @@ export default function Sidebar({ userRole, mobileOpen, onMobileToggle }: Sideba
           </span>
         </div>
         <button
+          type="button"
           onClick={onMobileToggle}
           className="ml-auto rounded-lg p-1 text-slate-400 hover:bg-slate-700 hover:text-white lg:hidden"
+          aria-label="Đóng menu"
         >
           {CloseIcon}
         </button>

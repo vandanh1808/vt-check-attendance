@@ -48,11 +48,18 @@ export default function Modal({ open, onClose, title, children, size = "md" }: M
       onClick={handleOverlayClick}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs animate-fade-in"
     >
-      <div className={`w-full ${sizeClasses[size]} rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/50 animate-slide-up`}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className={`w-full ${sizeClasses[size]} rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200/50 animate-slide-up`}
+      >
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+          <h2 id="modal-title" className="text-base font-semibold text-slate-900">{title}</h2>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Đóng"
             className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

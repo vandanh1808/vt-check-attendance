@@ -22,7 +22,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     if (session.user.role !== ROLES.ADMIN) return forbiddenResponse();
 
     const { id } = await params;
-    const userId = parseInt(id);
+    const userId = parseInt(id, 10);
     if (isNaN(userId)) return errorResponse("ID không hợp lệ");
 
     const body = (await request.json()) as UpdateUserPayload;
@@ -44,7 +44,7 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
     if (session.user.role !== ROLES.ADMIN) return forbiddenResponse();
 
     const { id } = await params;
-    const userId = parseInt(id);
+    const userId = parseInt(id, 10);
     if (isNaN(userId)) return errorResponse("ID không hợp lệ");
 
     await deleteUser(userId);
