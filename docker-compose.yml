@@ -16,7 +16,7 @@ services:
     build: .
     container_name: vt-attendance-app
     ports:
-      - "3000:3000"
+      - "3333:3333"
     env_file:
       - .env.local
     environment:
