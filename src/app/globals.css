@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: #f8fafc;
   --color-foreground: #0f172a;
@@ -13,6 +15,7 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  transition: background 0.6s ease, color 0.4s ease;
 }
 
 ::selection {
@@ -50,3 +53,282 @@ body {
 .animate-fade-in    { animation: fade-in 0.2s ease-out; }
 .animate-slide-up   { animation: slide-up 0.25s ease-out; }
 .animate-slide-left { animation: slide-in-left 0.2s ease-out; }
+
+/* ═══════════════════════════════════════════════════════
+   DARK MODE — Glassmorphism
+   ═══════════════════════════════════════════════════════ */
+
+html.dark {
+  color-scheme: dark;
+}
+html.dark body {
+  background: #070b14;
+  color: #cbd5e1;
+}
+html.dark ::selection {
+  background: rgb(99 102 241 / 0.25);
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgb(100 116 139 / 0.4);
+}
+
+/* ── Glass cards ─────────────────────────────────────── */
+html.dark .bg-white {
+  background: rgba(15, 23, 42, 0.55) !important;
+  backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ── Borders — slate ─────────────────────────────────── */
+html.dark .ring-gray-200,
+html.dark .ring-slate-200,
+html.dark .ring-slate-200\/80,
+html.dark .ring-slate-200\/60,
+html.dark .ring-slate-200\/50 {
+  --tw-ring-color: rgba(148, 163, 184, 0.08) !important;
+}
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-300 {
+  border-color: rgba(148, 163, 184, 0.1) !important;
+}
+html.dark .border-slate-100 {
+  border-color: rgba(148, 163, 184, 0.06) !important;
+}
+html.dark .shadow-sm {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ── Borders — gray (used by Autocomplete, BulkCreate, UserTable etc.) */
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+html.dark .border-green-200 {
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+html.dark .border-red-400 {
+  border-color: rgba(248, 113, 113, 0.35) !important;
+}
+html.dark hr.border-gray-200 {
+  border-color: rgba(148, 163, 184, 0.08) !important;
+}
+
+/* ── Rings — colored ─────────────────────────────────── */
+html.dark .ring-indigo-100,
+html.dark .ring-indigo-600\/10 {
+  --tw-ring-color: rgba(99, 102, 241, 0.12) !important;
+}
+html.dark .ring-emerald-600\/20 { --tw-ring-color: rgba(16, 185, 129, 0.15) !important; }
+html.dark .ring-emerald-600\/10 { --tw-ring-color: rgba(16, 185, 129, 0.1) !important; }
+html.dark .ring-amber-600\/20   { --tw-ring-color: rgba(245, 158, 11, 0.15) !important; }
+html.dark .ring-red-600\/20     { --tw-ring-color: rgba(239, 68, 68, 0.15) !important; }
+html.dark .ring-red-600\/10     { --tw-ring-color: rgba(239, 68, 68, 0.1) !important; }
+html.dark .ring-indigo-600\/20  { --tw-ring-color: rgba(99, 102, 241, 0.15) !important; }
+html.dark .ring-slate-500\/15   { --tw-ring-color: rgba(148, 163, 184, 0.1) !important; }
+
+/* ── Surfaces — slate ────────────────────────────────── */
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/80,
+html.dark .bg-slate-50\/50 {
+  background: rgba(15, 23, 42, 0.4) !important;
+}
+html.dark .bg-slate-100 {
+  background: rgba(30, 41, 59, 0.5) !important;
+}
+html.dark .bg-slate-200 {
+  background: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* ── Surfaces — gray ─────────────────────────────────── */
+html.dark .bg-gray-50,
+html.dark .bg-gray-50\/50 {
+  background: rgba(15, 23, 42, 0.4) !important;
+}
+html.dark .bg-gray-100 {
+  background: rgba(30, 41, 59, 0.5) !important;
+}
+html.dark .bg-gray-200 {
+  background: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* ── Surfaces — colored ──────────────────────────────── */
+html.dark .bg-indigo-50,
+html.dark .bg-indigo-50\/70 {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+html.dark .bg-indigo-100 {
+  background: rgba(99, 102, 241, 0.15) !important;
+}
+html.dark .bg-blue-50,
+html.dark .bg-blue-50\/50,
+html.dark .bg-blue-50\/40 {
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+html.dark .bg-green-50 {
+  background: rgba(16, 185, 129, 0.1) !important;
+}
+html.dark .bg-emerald-50 { background: rgba(16, 185, 129, 0.1) !important; }
+html.dark .bg-amber-50   { background: rgba(245, 158, 11, 0.1) !important; }
+html.dark .bg-red-50     { background: rgba(239, 68, 68, 0.1) !important; }
+html.dark .bg-red-50\/50,
+html.dark .bg-red-50\/40 {
+  background: rgba(239, 68, 68, 0.08) !important;
+}
+html.dark .bg-amber-50\/50,
+html.dark .bg-amber-50\/40 {
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+/* ── Hover surfaces ──────────────────────────────────── */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-50\/60:hover,
+html.dark .hover\:bg-slate-50\/50:hover {
+  background: rgba(51, 65, 85, 0.2) !important;
+}
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-gray-100:hover {
+  background: rgba(51, 65, 85, 0.3) !important;
+}
+html.dark .hover\:bg-gray-50:hover {
+  background: rgba(51, 65, 85, 0.2) !important;
+}
+html.dark .hover\:bg-blue-50\/50:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+html.dark .active\:bg-slate-200:active {
+  background: rgba(51, 65, 85, 0.4) !important;
+}
+html.dark .hover\:border-blue-400:hover {
+  border-color: rgba(96, 165, 250, 0.4) !important;
+}
+html.dark .hover\:border-slate-400:hover {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* ── Focus-within (Autocomplete) ─────────────────────── */
+html.dark .focus-within\:border-blue-500:focus-within {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+}
+html.dark .focus-within\:ring-blue-500:focus-within {
+  --tw-ring-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* ── Text — slate ────────────────────────────────────── */
+html.dark .text-slate-900 { color: #f1f5f9 !important; }
+html.dark .text-slate-800 { color: #e2e8f0 !important; }
+html.dark .text-slate-700 { color: #cbd5e1 !important; }
+html.dark .text-slate-600 { color: #94a3b8 !important; }
+html.dark .text-slate-500 { color: #64748b !important; }
+html.dark .text-slate-400 { color: #475569 !important; }
+
+/* ── Text — gray ─────────────────────────────────────── */
+html.dark .text-gray-900 { color: #f1f5f9 !important; }
+html.dark .text-gray-800 { color: #e2e8f0 !important; }
+html.dark .text-gray-700 { color: #cbd5e1 !important; }
+html.dark .text-gray-600 { color: #94a3b8 !important; }
+html.dark .text-gray-500 { color: #64748b !important; }
+html.dark .text-gray-400 { color: #475569 !important; }
+html.dark .text-gray-300 { color: #334155 !important; }
+
+/* ── Text — colors ───────────────────────────────────── */
+html.dark .text-red-700     { color: #fca5a5 !important; }
+html.dark .text-red-600     { color: #f87171 !important; }
+html.dark .text-red-500     { color: #ef4444 !important; }
+html.dark .text-emerald-700 { color: #6ee7b7 !important; }
+html.dark .text-emerald-600 { color: #34d399 !important; }
+html.dark .text-amber-700   { color: #fcd34d !important; }
+html.dark .text-amber-600   { color: #fbbf24 !important; }
+html.dark .text-amber-500   { color: #f59e0b !important; }
+html.dark .text-indigo-900  { color: #c7d2fe !important; }
+html.dark .text-indigo-700  { color: #a5b4fc !important; }
+html.dark .text-indigo-600  { color: #818cf8 !important; }
+html.dark .text-indigo-500  { color: #818cf8 !important; }
+html.dark .text-blue-700    { color: #93c5fd !important; }
+html.dark .text-blue-600    { color: #60a5fa !important; }
+html.dark .text-blue-400    { color: #60a5fa !important; }
+html.dark .text-green-700   { color: #6ee7b7 !important; }
+html.dark .text-green-600   { color: #34d399 !important; }
+html.dark .text-yellow-700  { color: #fde047 !important; }
+html.dark .text-yellow-600  { color: #facc15 !important; }
+html.dark .hover\:text-blue-800:hover  { color: #93c5fd !important; }
+html.dark .hover\:text-red-600:hover   { color: #f87171 !important; }
+html.dark .hover\:text-red-500:hover   { color: #ef4444 !important; }
+html.dark .hover\:text-red-800:hover   { color: #fca5a5 !important; }
+html.dark .hover\:text-indigo-800:hover { color: #a5b4fc !important; }
+html.dark .hover\:text-blue-600:hover  { color: #60a5fa !important; }
+
+/* ── Placeholder text ────────────────────────────────── */
+html.dark .placeholder\:text-slate-400::placeholder,
+html.dark .placeholder\:text-gray-400::placeholder {
+  color: #475569 !important;
+}
+
+/* ── Inputs (element selector) ───────────────────────── */
+html.dark input[type="date"],
+html.dark input[type="time"],
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="number"],
+html.dark input[type="search"],
+html.dark select,
+html.dark textarea {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(148, 163, 184, 0.12) !important;
+  color: #e2e8f0 !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+html.dark input:disabled,
+html.dark select:disabled,
+html.dark textarea:disabled {
+  background: rgba(15, 23, 42, 0.3) !important;
+  color: #475569 !important;
+}
+
+/* ── Dividers ────────────────────────────────────────── */
+html.dark .divide-slate-100 > :not(:last-child),
+html.dark .divide-gray-100 > :not(:last-child) {
+  border-color: rgba(148, 163, 184, 0.06) !important;
+}
+html.dark .divide-slate-50 > :not(:last-child) {
+  border-color: rgba(148, 163, 184, 0.04) !important;
+}
+
+/* ── Recharts ────────────────────────────────────────── */
+html.dark .recharts-cartesian-grid line {
+  stroke: rgba(148, 163, 184, 0.08);
+}
+html.dark .recharts-text {
+  fill: #94a3b8 !important;
+}
+html.dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(148, 163, 184, 0.1) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+html.dark .recharts-default-tooltip .recharts-tooltip-label {
+  color: #f1f5f9 !important;
+}
+html.dark .recharts-default-tooltip .recharts-tooltip-item {
+  color: #cbd5e1 !important;
+}
+html.dark .recharts-legend-item-text {
+  color: #94a3b8 !important;
+}
+
+/* ── Modal overlay ───────────────────────────────────── */
+html.dark .bg-slate-900\/40 {
+  background: rgba(0, 0, 0, 0.6) !important;
+}

@@ -23,6 +23,7 @@ interface GroupedEmployee {
 }
 
 type SortBy = "name" | "department" | "attendance_asc" | "attendance_desc";
+type ViewMode = "card" | "table";
 
 interface DisplayOptions {
   showAbsentDays: boolean;
@@ -31,6 +32,8 @@ interface DisplayOptions {
   sortBy: SortBy;
   highlightLate: boolean;
   lateThreshold: string;
+  onlyLate: boolean;
+  viewMode: ViewMode;
 }
 
 const LATE_MIN = "06:00";
@@ -46,6 +49,8 @@ const DEFAULT_OPTIONS: DisplayOptions = {
   sortBy: "department",
   highlightLate: false,
   lateThreshold: "08:00",
+  onlyLate: false,
+  viewMode: "card",
 };
 
 function loadOptions(): DisplayOptions {
@@ -282,23 +287,30 @@ function OptionsPanel({
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Đánh dấu</p>
               <ToggleSwitch
                 checked={options.highlightLate}
-                onChange={(v) => onChange({ ...options, highlightLate: v })}
+                onChange={(v) => onChange({ ...options, highlightLate: v, onlyLate: v ? options.onlyLate : false })}
                 label="Đánh dấu đi trễ"
               />
               {options.highlightLate && (
-                <label className="flex items-center gap-2.5 pl-[46px]">
-                  <span className="text-sm text-slate-500">Trễ sau:</span>
-                  <input
-                    type="time"
-                    value={options.lateThreshold}
-                    min={LATE_MIN}
-                    max={LATE_MAX}
-                    onChange={(e) => {
-                      if (e.target.value) onChange({ ...options, lateThreshold: e.target.value });
-                    }}
-                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                <>
+                  <label className="flex items-center gap-2.5 pl-[46px]">
+                    <span className="text-sm text-slate-500">Trễ sau:</span>
+                    <input
+                      type="time"
+                      value={options.lateThreshold}
+                      min={LATE_MIN}
+                      max={LATE_MAX}
+                      onChange={(e) => {
+                        if (e.target.value) onChange({ ...options, lateThreshold: e.target.value });
+                      }}
+                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </label>
+                  <ToggleSwitch
+                    checked={options.onlyLate}
+                    onChange={(v) => onChange({ ...options, onlyLate: v })}
+                    label="Chỉ hiển thị người đi trễ"
                   />
-                </label>
+                </>
               )}
             </div>
           </div>
@@ -315,6 +327,8 @@ function activeCount(opts: DisplayOptions): number {
   if (opts.groupByDept) n++;
   if (opts.sortBy !== "department") n++;
   if (opts.highlightLate) n++;
+  if (opts.onlyLate) n++;
+  if (opts.viewMode !== "card") n++;
   return n;
 }
 
@@ -338,6 +352,121 @@ function DeptHeader({ name, count }: { name: string; count: number }) {
       </svg>
       <span className="text-sm font-semibold text-indigo-900">{name}</span>
       <span className="text-xs text-indigo-500">{count} nhân viên</span>
+    </div>
+  );
+}
+
+function FlatTable({
+  employees,
+  holidaySet,
+  highlightLate,
+  lateThreshold,
+  totalWorkdays,
+}: {
+  employees: GroupedEmployee[];
+  holidaySet: Set<string>;
+  highlightLate: boolean;
+  lateThreshold: string;
+  totalWorkdays: number;
+}) {
+  const rows = useMemo(() => {
+    const result: { emp: GroupedEmployee; rec: EmployeeAttendanceRecord }[] = [];
+    for (const emp of employees) {
+      for (const rec of emp.records) {
+        result.push({ emp, rec });
+      }
+    }
+    return result;
+  }, [employees]);
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-slate-200/80 bg-white shadow-sm">
+      <table className="w-full text-left text-sm">
+        <thead className="bg-slate-50/80 text-xs uppercase text-slate-500">
+          <tr>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Mã NV</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Tên nhân viên</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Phòng ban</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Ngày</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Giờ vào</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Giờ ra</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold">Thiết bị</th>
+            <th className="whitespace-nowrap px-4 py-3 font-semibold text-right">Tỷ lệ</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {rows.map(({ emp, rec }, i) => {
+            const absent = !rec.checkIn;
+            const holiday = holidaySet.has(rec.attendanceDate);
+            const weekend = isWeekend(rec.attendanceDate);
+            const late = highlightLate && isLate(rec.checkIn, lateThreshold);
+            const rowBg = holiday
+              ? "bg-blue-50/40"
+              : absent
+                ? "bg-red-50/40"
+                : late
+                  ? "bg-amber-50/40"
+                  : "hover:bg-slate-50";
+
+            const isFirstOfEmployee =
+              i === 0 || rows[i - 1].emp.maNhanVien !== emp.maNhanVien;
+            const empRowCount = emp.records.length;
+
+            return (
+              <tr key={`${rec.maNhanVien}-${rec.attendanceDate}`} className={`transition-colors ${rowBg}`}>
+                {isFirstOfEmployee ? (
+                  <>
+                    <td className="whitespace-nowrap px-4 py-2.5 font-semibold text-slate-900" rowSpan={empRowCount}>
+                      {emp.maNhanVien}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-slate-700" rowSpan={empRowCount}>
+                      {emp.tenNhanVien}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2.5 text-slate-500" rowSpan={empRowCount}>
+                      {emp.phongBan ?? "--"}
+                    </td>
+                  </>
+                ) : null}
+                <td className={`whitespace-nowrap px-4 py-2.5 ${absent && !holiday ? "text-slate-400" : holiday ? "text-blue-400" : ""}`}>
+                  {formatDate(rec.attendanceDate)}
+                  {weekend && <span className="ml-1 text-[10px] text-slate-400">(CT)</span>}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2.5">
+                  {absent ? (
+                    holiday ? <Badge variant="info">Nghỉ lễ</Badge> : <Badge variant="danger">Nghỉ</Badge>
+                  ) : (
+                    <span className={late ? "font-medium text-amber-700" : "text-green-700"}>
+                      {formatTime(rec.checkIn)}
+                      {late && <span className="ml-1 text-[10px] text-amber-500">trễ</span>}
+                    </span>
+                  )}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2.5">
+                  {absent ? (
+                    <span className="text-slate-300">--</span>
+                  ) : rec.checkOut ? (
+                    <span className="text-blue-700">{formatTime(rec.checkOut)}</span>
+                  ) : (
+                    <Badge variant="warning">Thiếu</Badge>
+                  )}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-slate-500">
+                  {absent ? "--" : rec.tenMay ?? "--"}
+                </td>
+                {isFirstOfEmployee ? (
+                  <td className="whitespace-nowrap px-4 py-2.5 text-right" rowSpan={empRowCount}>
+                    <AttendanceRateBadge rate={emp.attendanceRate} />
+                    <span className="ml-1.5 text-xs text-slate-400">{emp.presentDays}/{totalWorkdays}</span>
+                  </td>
+                ) : null}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {rows.length === 0 && (
+        <div className="px-4 py-8 text-center text-slate-400">Không có dữ liệu</div>
+      )}
     </div>
   );
 }
@@ -381,16 +510,23 @@ export default function AdminAttendanceTable({
     [grouped, options.sortBy],
   );
 
+  const filtered = useMemo(() => {
+    if (!options.onlyLate || !options.highlightLate) return sorted;
+    return sorted.filter((emp) =>
+      emp.records.some((r) => isLate(r.checkIn, options.lateThreshold)),
+    );
+  }, [sorted, options.onlyLate, options.highlightLate, options.lateThreshold]);
+
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [data]);
+  }, [data, options.onlyLate]);
 
-  const totalPages = Math.ceil(sorted.length / pageSize);
-  const paged = sorted.slice(
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paged = filtered.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
@@ -589,21 +725,47 @@ export default function AdminAttendanceTable({
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={expandAll}
-            className="text-sm text-indigo-600 hover:text-indigo-800"
-          >
-            Mở tất cả
-          </button>
-          <span className="text-slate-300">|</span>
-          <button
-            type="button"
-            onClick={collapseAll}
-            className="text-sm text-indigo-600 hover:text-indigo-800"
-          >
-            Đóng tất cả
-          </button>
+          <div className="flex overflow-hidden rounded-lg border border-slate-200">
+            <button
+              type="button"
+              onClick={() => updateOptions({ ...options, viewMode: "card" })}
+              className={`px-2.5 py-1.5 text-sm transition-colors ${options.viewMode === "card" ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+              aria-label="Dạng thẻ"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateOptions({ ...options, viewMode: "table" })}
+              className={`border-l border-slate-200 px-2.5 py-1.5 text-sm transition-colors ${options.viewMode === "table" ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+              aria-label="Dạng bảng"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M10 3v18M3 6a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" />
+              </svg>
+            </button>
+          </div>
+          {options.viewMode === "card" && (
+            <>
+              <button
+                type="button"
+                onClick={expandAll}
+                className="text-sm text-indigo-600 hover:text-indigo-800"
+              >
+                Mở tất cả
+              </button>
+              <span className="text-slate-300">|</span>
+              <button
+                type="button"
+                onClick={collapseAll}
+                className="text-sm text-indigo-600 hover:text-indigo-800"
+              >
+                Đóng tất cả
+              </button>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -620,13 +782,21 @@ export default function AdminAttendanceTable({
               <option key={n} value={n}>{n}</option>
             ))}
           </select>
-          <span>/ {sorted.length} nhân viên</span>
+          <span>/ {filtered.length} nhân viên</span>
           <span className="text-slate-300">·</span>
           <span>{totalWorkdays} ngày làm việc</span>
         </div>
       </div>
 
-      {deptGroups ? (
+      {options.viewMode === "table" ? (
+        <FlatTable
+          employees={paged}
+          holidaySet={holidaySet}
+          highlightLate={options.highlightLate}
+          lateThreshold={options.lateThreshold}
+          totalWorkdays={totalWorkdays}
+        />
+      ) : deptGroups ? (
         <div className="space-y-5">
           {deptGroups.map(([dept, emps]) => (
             <div key={dept} className="space-y-3">

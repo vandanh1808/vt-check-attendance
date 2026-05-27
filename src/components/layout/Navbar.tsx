@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { signOut } from "next-auth/react";
 import Badge from "@/components/ui/Badge";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import { ROUTES } from "@/lib/constants";
 import type { UserRole } from "@/types";
 
@@ -14,7 +15,7 @@ interface NavbarProps {
 
 export default function Navbar({ userName, userRole, mobileMenuButton }: NavbarProps) {
   return (
-    <header className="flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="relative z-20 flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/80 sm:px-6">
       <div className="flex items-center gap-3">
         {mobileMenuButton}
       </div>
@@ -25,7 +26,7 @@ export default function Navbar({ userName, userRole, mobileMenuButton }: NavbarP
             {userName.charAt(0).toUpperCase()}
           </div>
           <div className="hidden flex-col sm:flex">
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
               {userName}
             </span>
             <Badge variant={userRole === "admin" ? "info" : "neutral"}>
@@ -34,12 +35,16 @@ export default function Navbar({ userName, userRole, mobileMenuButton }: NavbarP
           </div>
         </div>
 
-        <div className="h-5 w-px bg-slate-200" />
+        <div className="h-5 w-px bg-slate-200 dark:bg-slate-700" />
+
+        <ThemeToggle />
+
+        <div className="h-5 w-px bg-slate-200 dark:bg-slate-700" />
 
         <button
           type="button"
           onClick={() => signOut({ callbackUrl: ROUTES.LOGIN })}
-          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
           aria-label="Đăng xuất"
         >
           <svg
