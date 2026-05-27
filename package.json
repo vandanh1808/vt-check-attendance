@@ -25,6 +25,9 @@
     "recharts": "^3.8.1",
     "xlsx": "^0.18.5"
   },
+  "overrides": {
+    "@tsparticles/engine": "4.0.5"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
