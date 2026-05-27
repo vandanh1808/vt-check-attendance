@@ -5,6 +5,8 @@ import type { AttendanceRecord } from "@/types";
 
 interface AttendanceSummaryProps {
   data: AttendanceRecord[];
+  fromDate: string;
+  toDate: string;
 }
 
 interface StatCardProps {
@@ -27,9 +29,18 @@ function parseTimeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export default function AttendanceSummary({ data }: AttendanceSummaryProps) {
+function countDaysInRange(from: string, to: string): number {
+  const start = new Date(from + "T00:00:00");
+  const end = new Date(to + "T00:00:00");
+  return Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+}
+
+export default function AttendanceSummary({ data, fromDate, toDate }: AttendanceSummaryProps) {
   const stats = useMemo(() => {
-    const missingCheckOut = data.filter((r) => !r.checkOut).length;
+    const presentDays = data.filter((r) => r.checkIn).length;
+    const totalDaysInRange = countDaysInRange(fromDate, toDate);
+    const absentDays = totalDaysInRange - presentDays;
+    const missingCheckOut = data.filter((r) => r.checkIn && !r.checkOut).length;
 
     let totalMinutes = 0;
     for (const r of data) {
@@ -44,18 +55,25 @@ export default function AttendanceSummary({ data }: AttendanceSummaryProps) {
     const mins = totalMinutes % 60;
 
     return {
-      totalDays: data.length,
+      presentDays,
+      totalDaysInRange,
+      absentDays,
       totalHours: `${hours}h${mins.toString().padStart(2, "0")}m`,
       missingCheckOut,
     };
-  }, [data]);
+  }, [data, fromDate, toDate]);
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
       <StatCard
-        label="Tổng ngày"
-        value={stats.totalDays}
+        label="Ngày có mặt"
+        value={`${stats.presentDays}/${stats.totalDaysInRange}`}
         color="text-gray-900"
+      />
+      <StatCard
+        label="Ngày nghỉ"
+        value={stats.absentDays}
+        color={stats.absentDays > 0 ? "text-red-600" : "text-green-600"}
       />
       <StatCard
         label="Tổng giờ làm"

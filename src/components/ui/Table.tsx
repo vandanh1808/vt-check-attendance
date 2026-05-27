@@ -23,26 +23,26 @@ export default function Table<T>({
   keyExtractor,
 }: TableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <div className="overflow-x-auto rounded-xl border border-slate-200/80 bg-white shadow-sm">
       <table className="w-full text-left text-sm">
-        <thead className="bg-gray-50 text-xs uppercase text-gray-600">
-          <tr>
+        <thead>
+          <tr className="border-b border-slate-100 bg-slate-50/80">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`px-4 py-3 font-semibold ${col.className ?? ""}`}
+                className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 ${col.className ?? ""}`}
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-slate-100">
           {data.length === 0 ? (
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-4 py-8 text-center text-gray-400"
+                className="px-4 py-12 text-center text-sm text-slate-400"
               >
                 {emptyMessage}
               </td>
@@ -51,12 +51,12 @@ export default function Table<T>({
             data.map((row) => (
               <tr
                 key={keyExtractor(row)}
-                className="transition-colors hover:bg-gray-50"
+                className="transition-colors hover:bg-slate-50/60"
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`px-4 py-3 ${col.className ?? ""}`}
+                    className={`px-4 py-3 text-slate-700 ${col.className ?? ""}`}
                   >
                     {col.render(row)}
                   </td>

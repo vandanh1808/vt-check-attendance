@@ -63,29 +63,28 @@ export default function ProfilePage() {
         description="Quản lý thông tin tài khoản của bạn"
       />
 
-      <div className="max-w-md space-y-6">
-        {/* User info */}
-        <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <h3 className="mb-3 text-sm font-semibold text-gray-900">
+      <div className="max-w-md space-y-5">
+        <div className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200/60">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900">
             Thông tin tài khoản
           </h3>
-          <dl className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-gray-500">Họ tên</dt>
-              <dd className="font-medium text-gray-900">
+          <dl className="space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <dt className="text-slate-500">Họ tên</dt>
+              <dd className="font-medium text-slate-900">
                 {session?.user?.tenNhanVien}
               </dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-gray-500">Email</dt>
-              <dd className="font-medium text-gray-900">
+            <div className="flex items-center justify-between">
+              <dt className="text-slate-500">Email</dt>
+              <dd className="font-medium text-slate-900">
                 {session?.user?.email}
               </dd>
             </div>
             {session?.user?.maNhanVien && (
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Mã nhân viên</dt>
-                <dd className="font-medium text-gray-900">
+              <div className="flex items-center justify-between">
+                <dt className="text-slate-500">Mã nhân viên</dt>
+                <dd className="font-medium text-slate-900">
                   {session.user.maNhanVien}
                 </dd>
               </div>
@@ -93,23 +92,22 @@ export default function ProfilePage() {
           </dl>
         </div>
 
-        {/* Change password form */}
         <form
           onSubmit={handleSubmit}
-          className="rounded-lg border border-gray-200 bg-white p-5"
+          className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200/60"
         >
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900">
             Đổi mật khẩu
           </h3>
 
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-inset ring-red-600/10">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+            <div className="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
               {success}
             </div>
           )}
@@ -139,8 +137,8 @@ export default function ProfilePage() {
           </div>
 
           <div className="mt-5">
-            <Button type="submit" disabled={loading}>
-              {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+            <Button type="submit" loading={loading}>
+              Đổi mật khẩu
             </Button>
           </div>
         </form>

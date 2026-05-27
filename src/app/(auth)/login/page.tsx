@@ -13,21 +13,21 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-indigo-700 text-lg font-bold text-white shadow-lg shadow-indigo-500/25">
             VT
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900">
             VT Check Attendance
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             Đăng nhập để xem chấm công
           </p>
         </div>
 
-        <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+        <div className="rounded-2xl bg-white p-7 shadow-sm ring-1 ring-slate-200/60">
           <LoginForm />
         </div>
       </div>

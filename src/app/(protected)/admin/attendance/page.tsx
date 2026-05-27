@@ -91,7 +91,7 @@ export default function AdminAttendancePage() {
           <p className="text-sm text-gray-500">
             Tổng: <strong>{data.length}</strong> bản ghi
           </p>
-          <AdminAttendanceTable data={data} />
+          <AdminAttendanceTable data={data} fromDate={fromDate} toDate={toDate} />
         </>
       ) : null}
     </div>

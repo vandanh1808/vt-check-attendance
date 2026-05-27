@@ -60,8 +60,8 @@ export default function DashboardPage() {
         <Spinner className="py-12" />
       ) : hasFetched.current ? (
         <>
-          <AttendanceSummary data={data} />
-          <AttendanceTable data={data} />
+          <AttendanceSummary data={data} fromDate={fromDate} toDate={toDate} />
+          <AttendanceTable data={data} fromDate={fromDate} toDate={toDate} />
         </>
       ) : null}
     </div>

@@ -13,18 +13,18 @@ interface NavbarProps {
 
 export default function Navbar({ userName, userRole, mobileMenuButton }: NavbarProps) {
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
+    <header className="flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-md sm:px-6">
       <div className="flex items-center gap-3">
         {mobileMenuButton}
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-medium text-gray-600">
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-purple-600 text-xs font-semibold text-white shadow-sm">
             {userName.charAt(0).toUpperCase()}
           </div>
           <div className="hidden flex-col sm:flex">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-slate-700">
               {userName}
             </span>
             <Badge variant={userRole === "admin" ? "info" : "neutral"}>
@@ -33,13 +33,15 @@ export default function Navbar({ userName, userRole, mobileMenuButton }: NavbarP
           </div>
         </div>
 
+        <div className="h-5 w-px bg-slate-200" />
+
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           title="Đăng xuất"
         >
           <svg
-            className="h-5 w-5"
+            className="h-4.5 w-4.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
