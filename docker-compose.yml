@@ -12,5 +12,19 @@ services:
       - app_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  app:
+    build: .
+    container_name: vt-attendance-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      APP_DB_HOST: app-db
+      APP_DB_PORT: 5432
+    depends_on:
+      - app-db
+    restart: unless-stopped
+
 volumes:
   app_db_data:
