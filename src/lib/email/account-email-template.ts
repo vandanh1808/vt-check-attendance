@@ -3,6 +3,9 @@ export function buildAccountEmailHtml(
   email: string,
   password: string,
 ): string {
+  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const loginUrl = `${appUrl.replace(/\/+$/, "")}/login`;
+
   return `<!DOCTYPE html>
 <html lang="vi">
 <head><meta charset="UTF-8"></head>
@@ -21,10 +24,16 @@ export function buildAccountEmailHtml(
         <td style="padding:8px;border:1px solid #e2e8f0;font-family:monospace">${escapeHtml(password)}</td>
       </tr>
     </table>
+    <div style="text-align:center;margin:24px 0">
+      <a href="${loginUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;font-size:15px">Đăng nhập ngay</a>
+    </div>
     <p style="color:#dc2626;font-size:13px">
       Vui lòng đổi mật khẩu sau lần đăng nhập đầu tiên.
     </p>
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
+    <p style="color:#9ca3af;font-size:12px">
+      Hoặc truy cập: <a href="${loginUrl}" style="color:#6b7280">${loginUrl}</a>
+    </p>
     <p style="color:#9ca3af;font-size:12px">Email này được gửi tự động. Vui lòng không trả lời.</p>
   </div>
 </body>
