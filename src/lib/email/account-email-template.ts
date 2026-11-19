@@ -1,10 +1,11 @@
+import { getAppUrl } from "@/lib/helpers/app-url";
+
 export function buildAccountEmailHtml(
   tenNhanVien: string,
   email: string,
   password: string,
 ): string {
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
-  const loginUrl = `${appUrl.replace(/\/+$/, "")}/login`;
+  const loginUrl = `${getAppUrl()}/login`;
 
   return `<!DOCTYPE html>
 <html lang="vi">

@@ -25,12 +25,19 @@ export default function LoginForm() {
 
     setLoading(false);
 
+    console.log("signIn result:", JSON.stringify(result));
+
     if (result?.error) {
       setError("Email/Mã NV hoặc mật khẩu không đúng");
       return;
     }
 
-    router.push("/");
+    if (!result?.ok) {
+      setError("Đăng nhập thất bại, vui lòng thử lại");
+      return;
+    }
+
+    router.push("/dashboard");
     router.refresh();
   }
 

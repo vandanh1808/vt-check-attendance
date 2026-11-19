@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { buildOAuthCookies } from "@/lib/helpers/oauth-cookie";
+import { getAppUrl } from "@/lib/helpers/app-url";
 
 const REDIRECT_URI_PATH = "/api/admin/bulk-accounts/oauth/callback";
 
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const baseUrl = getAppUrl();
 
   if (error) {
     return redirectTo(baseUrl, errorDescription ?? error);
